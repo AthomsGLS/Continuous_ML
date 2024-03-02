@@ -1,0 +1,29 @@
+name: regression-model-training
+on: [push]
+jobs:
+  run:
+  
+    runs-on: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: iterative/setup-tools@v1
+      - name: clm_run
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          # Your ML workflow goes here
+          pip install -r requirements.txt
+          python pipeline/train.py
+
+          echo "# Model Report"
+          echo "## Model metrics" > report.md
+          cat results/metrics.txt >> report.md
+          
+          echo "## Data viz" >> report.md
+
+          echo "![](results/feature_importance.png)" >> report.md
+          echo "![](results/residuals.png)" >> report.md
+          
+          # updates previous comment, if found. Can also use create instead
+          cml comment update report.md
